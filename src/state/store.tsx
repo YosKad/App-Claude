@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { Subscription } from "../domain/types";
 import type { CancellationMethod } from "../services/cancellation";
+export type { Subscription };
 import { SEED_SUBSCRIPTIONS, TODAY } from "../data/seed";
 import { loadPersisted, savePersisted } from "./persistence";
 
@@ -21,7 +22,8 @@ export type ScreenName =
   | "insights"
   | "paywall"
   | "settings"
-  | "deleteAccount";
+  | "deleteAccount"
+  | "addSub";
 
 /** Root tabs reachable from the bottom bar. */
 export const ROOT_TABS: ScreenName[] = ["home", "alerts", "insights", "settings"];
@@ -67,7 +69,8 @@ export type Action =
   | { type: "restoreSub"; id: string }
   | { type: "toggleSetting"; key: SettingKey }
   | { type: "upgradePro" }
-  | { type: "deleteAccount" };
+  | { type: "deleteAccount" }
+  | { type: "addSub"; sub: Subscription };
 
 export const initialState: AppState = {
   today: TODAY,
@@ -127,6 +130,14 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case "restoreSub":
       return { ...state, subs: setStatus(state.subs, action.id, "active") };
+
+    case "addSub":
+      // New subscriptions go to the top, and we drop back to Home to show it.
+      return {
+        ...state,
+        subs: [action.sub, ...state.subs],
+        stack: [{ screen: "home" }],
+      };
 
     case "toggleSetting":
       return {

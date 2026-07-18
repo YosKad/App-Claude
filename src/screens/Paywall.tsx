@@ -119,10 +119,14 @@ export function Paywall() {
           disabled={busy !== null}
           onClick={restore}
         >
-          Then {selected.price}
-          {selected.perMonth ? `/yr` : "/mo"} · cancel anytime ·{" "}
           <u>{busy === "restore" ? "Restoring…" : "Restore purchase"}</u>
         </button>
+        <div className="pw-terms">
+          {selected.trialDays}-day free trial, then {selected.price}
+          {selected.perMonth ? "/year" : "/month"}. Auto-renews until cancelled;
+          manage or cancel anytime in your App Store account. <u>Terms</u> ·{" "}
+          <u>Privacy</u>
+        </div>
       </div>
     </div>
   );

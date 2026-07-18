@@ -44,6 +44,25 @@ try {
   check("top alert banner is shown", await page.locator(".d-alert").isVisible());
   await shot("02-home");
 
+  // --- Add a subscription ---
+  console.log("Add subscription");
+  const countBefore = await page.locator(".d-item").count();
+  await page.getByTestId("open-add").click();
+  await page.waitForSelector('[data-testid="add-save"]');
+  await page.getByTestId("add-save").click(); // empty -> should show errors
+  check("blank form is rejected", await page.getByTestId("add-errors").isVisible());
+  await page.getByTestId("add-name").fill("Disney+");
+  await page.getByTestId("add-price").fill("13.99");
+  await page.getByTestId("add-date").fill("2026-08-15");
+  await shot("13-add");
+  await page.getByTestId("add-save").click();
+  await page.waitForSelector('[data-testid="sub-netflix"]');
+  check(
+    "new subscription appears on home",
+    (await page.locator(".d-item").count()) === countBefore + 1,
+  );
+  check("added sub is shown by name", await page.getByText("Disney+").first().isVisible());
+
   // --- Detail ---
   console.log("Detail");
   await page.getByTestId("sub-netflix").click();

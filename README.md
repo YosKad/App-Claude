@@ -35,6 +35,7 @@ Nine screens, all working:
 | Paywall | The $5.99/mo (or $39.99/yr) Pro upsell — real purchase + restore |
 | Settings | Connected accounts, notification toggles, plan, security, privacy |
 | Delete account | Store-required account & data deletion flow |
+| Add subscription | Validated form to add your own subscriptions |
 
 Everything on screen is **derived from data** by the pure functions in
 `src/domain/` — totals, alerts, savings and dates are all unit-tested.
@@ -52,8 +53,9 @@ Everything on screen is **derived from data** by the pure functions in
 
 ## Quality
 
-- **64 unit tests** across money, dates, alert detection, savings, the state
-  reducer, persistence, and the cancellation + billing services (`npm test`).
+- **73 unit tests** across money, dates, alert detection, savings, new-sub
+  validation, the state reducer, persistence, and the cancellation + billing
+  services (`npm test`).
 - **End-to-end QA** that drives the whole user journey in a browser and asserts
   every state change — both cancellation paths, the Pro purchase/restore flow,
   reload persistence, and account deletion (`node tests/e2e.mjs`).

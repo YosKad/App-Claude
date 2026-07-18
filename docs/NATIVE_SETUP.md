@@ -95,7 +95,23 @@ real:
 - Email receipt parsing (optional): Gmail restricted scopes → requires Google's
   OAuth verification (weeks of lead time). See LAUNCH_CHECKLIST §3.
 
-## 7. Submit
+## 7. App icon & splash screen (required for the stores)
+
+Provide one 1024×1024 icon and (optionally) a splash logo, then generate every
+size automatically:
+
+```bash
+npm install -D @capacitor/assets
+# put icon at: resources/icon.png (1024x1024)
+# optional splash at: resources/splash.png (2732x2732)
+npx capacitor-assets generate
+npx cap sync
+```
+
+I can produce a first-draft icon (the shield mark) so you have something to ship;
+you can swap it later.
+
+## 8. Submit
 
 Follow `docs/LAUNCH_CHECKLIST.md`. Highlights: privacy nutrition labels + Google
 Data safety form, Financial features declaration, demo account for review,

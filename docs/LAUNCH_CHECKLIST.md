@@ -29,9 +29,9 @@ sensitive-data and in-app-purchase sections carry the highest rejection risk.
   in the paywall, calls `billingService.restore()`._
 - ☑ Subscription delivers **ongoing value** and runs **≥ 7 days** — 7-day trial +
   monthly/yearly plans across devices (Apple 3.1.2).
-- ◐ Show price, billing period, and a link to terms **before** purchase;
-  auto-renew disclosure text. _Price/period shown; terms link + auto-renew copy
-  to add._
+- ☑ Show price, billing period, and a link to terms **before** purchase;
+  auto-renew disclosure text. _Paywall now shows trial→price, "auto-renews until
+  cancelled", and Terms/Privacy links._
 - ☐ Configure products in App Store Connect and Play Console; test with sandbox
   accounts.
 - Note: this is separate from *cancelling other people's* subscriptions — that's
@@ -86,7 +86,23 @@ sensitive-data and in-app-purchase sections carry the highest rejection risk.
 - ☐ **App icon** (all sizes), age rating questionnaire, category (Finance).
 - ☐ Test on real devices; handle offline and error states gracefully.
 
-## 6. Legal & content
+## 6. Design & screen compliance (Apple HIG / Android)
+- ☑ **Safe areas** honoured — content clears the notch / Dynamic Island / status
+  bar (top) and the home indicator / gesture bar (bottom) via
+  `env(safe-area-inset-*)` and `viewport-fit=cover`.
+- ☑ **Responsive layout** — fluid within a centred mobile column; internal
+  scrolling with a fixed tab bar; no fixed widths that clip on small devices.
+- ☑ **Touch targets** — primary controls ≥ 44–48px (Apple 44pt / Android 48dp).
+- ☑ **Dark UI** committed and legible; semantic colours for danger/warning.
+- ◐ **Dynamic Type / larger text** — layout is flexible; a full large-text audit
+  is still worth doing before submission.
+- ☐ App **icon** (all sizes) + **splash** via `@capacitor/assets` — see
+  NATIVE_SETUP §7.
+- ☐ Store **screenshots** at required device sizes.
+- ☐ Native **status bar** style via `@capacitor/status-bar` (dark content on our
+  dark background).
+
+## 7. Legal & content
 - ☐ **Terms of Service** and the **subscription terms** (auto-renew, refunds).
 - ☐ Use of third-party brand names/logos (Netflix, Spotify…) limited to nominative,
   factual reference — no implication of endorsement or partnership.

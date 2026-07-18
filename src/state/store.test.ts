@@ -49,6 +49,19 @@ describe("reducer subscription actions", () => {
     reducer(base, { type: "cancelSub", id: "netflix" });
     expect(base.subs.find((x) => x.id === "netflix")?.status).toBe(before);
   });
+
+  it("addSub prepends the new sub and returns to Home", () => {
+    const sub = {
+      id: "disney-x", name: "Disney+", glyph: "D", color: "#000",
+      category: "Streaming" as const, status: "active" as const, price: 13.99,
+      cycle: "monthly" as const, nextCharge: "2026-08-15", startedOn: "2026-08-15",
+      lastUsed: null, priceHistory: [],
+    };
+    const s = reducer(base, { type: "addSub", sub });
+    expect(s.subs[0].id).toBe("disney-x");
+    expect(s.subs.length).toBe(base.subs.length + 1);
+    expect(currentScreen(s).screen).toBe("home");
+  });
 });
 
 describe("reducer settings & pro", () => {

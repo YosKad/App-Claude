@@ -24,6 +24,20 @@ export function Home() {
 
   return (
     <div className="screen has-tabs">
+      <div className="home-bar">
+        <div className="home-brand">
+          <span className="hb-logo">🛡️</span>
+          <span>SubSentry</span>
+        </div>
+        <button
+          className="home-add"
+          data-testid="open-add"
+          aria-label="Add subscription"
+          onClick={() => dispatch({ type: "navigate", screen: "addSub" })}
+        >
+          ＋ Add
+        </button>
+      </div>
       <div className="d-h">
         <div className="k">Total monthly subscriptions</div>
         <div className="row">
