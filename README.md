@@ -1,69 +1,99 @@
-# SubSentry
+# SubSentry 🛡️
 
-**Stop paying for subscriptions you forgot about.** SubSentry watches all your
-subscriptions, warns you before a free trial charges you, flags price hikes and
-unused "ghost" subscriptions, and cancels them for you.
+**Stop paying for subscriptions you forgot about.** Watches your subscriptions,
+warns before a free trial charges you, flags price hikes and unused ones, and
+cancels them for you. One React + TypeScript codebase → **iOS + Android** via
+Capacitor, and runs on the web for development.
 
-One React + TypeScript codebase, built mobile-first and structured for
-[Capacitor](https://capacitorjs.com/) so it ships as a native app on **iOS and
-Android** — and runs on the web for development and QA.
+> **📌 This README is the project's living status. Whoever works on SubSentry
+> (any Claude session) should read this first, and update the three status
+> sections below at the end of every working session. The owner shouldn't have
+> to re-explain the project.**
 
-## Quick start
+---
+
+## 📊 STATUS — updated 2026-07-18
+
+**Where we are:** The full app is built and working as a web app, with all flows
+tested (73 unit tests + end-to-end browser QA, all green). It is **not yet a
+native app** — the iOS/Android projects get generated on the owner's Mac (see
+"Needs the owner" below). Nothing is half-finished or broken.
+
+**Branch:** `claude/mobile-app-concepts-8mvap4` (always work here; commit + push
+when a piece is done and green).
+
+---
+
+## ✅ DONE
+
+- **10 screens, all interactive:** onboarding, home, subscription detail,
+  cancel concierge, success, alerts, insights, paywall, settings, delete
+  account, add subscription.
+- **Real logic (unit-tested):** monthly/yearly totals, category breakdown, alert
+  detection (trial-ending / price-hike / unused), savings.
+- **Cancellation done honestly:** four real routes; Apple/Google-billed subs are
+  NOT fake-cancelled — the app sends you to system settings. See
+  `docs/HOW_CANCELLATION_WORKS.md`.
+- **Pro purchase + Restore** behind a `BillingService` seam (mock now, native
+  plugin later). Auto-renew disclosure + Terms/Privacy shown.
+- **Account & data deletion** flow (store requirement).
+- **Add your own subscriptions** (validated form).
+- **Local persistence** — state survives app restarts.
+- **Design/compliance:** safe areas (notch/Dynamic Island/home indicator),
+  responsive layout, 44–48px touch targets, dark UI.
+- **Capacitor configured** (config + scripts); ready for `cap add` on a Mac.
+
+## 🔜 NEXT (in priority order)
+
+1. **[Mac] Generate native apps** — run `docs/NATIVE_SETUP.md`, sign, run on a
+   device. *(Owner has a Mac tomorrow.)*
+2. **[Mac] Real in-app purchases** — swap the mock `BillingService` for
+   RevenueCat/StoreKit + Play Billing; create products `pro_monthly` /
+   `pro_yearly`.
+3. App **icon + splash** (draft the shield mark, then `@capacitor/assets`).
+4. Native **status bar** styling (`@capacitor/status-bar`).
+5. **Bank/email sync** via Plaid (read-only) — replaces the demo data.
+6. Privacy forms, screenshots, demo account → **submit** (see checklist).
+
+## ⏳ NEEDS THE OWNER (blocking native launch)
+
+- **Apple Developer + Google Play accounts** — owner has both ✅ (Apple can take
+  ~a day to finish verifying).
+- **4 quick answers** for the native setup:
+  1. Bundle ID — `com.subsentry.app` or your own?
+  2. Apple Team ID (Xcode shows it after you sign in; you keep all credentials).
+  3. RevenueCat vs. raw StoreKit for purchases? *(recommended: RevenueCat.)*
+  4. iOS first, or iOS + Android together?
+- **A Mac** for the iOS build steps (Xcode) — used in `docs/NATIVE_SETUP.md`.
+
+---
+
+## Commands
 
 ```bash
 npm install
-npm run dev        # local dev server
-npm test           # unit tests (domain + state logic)
-npm run build      # production build
-npm run preview    # serve the production build on :4173
-node tests/e2e.mjs # end-to-end QA (drives the built app in a real browser)
+npm run dev          # dev server
+npm test             # 73 unit tests
+npm run build        # production build
+npm run preview      # serve build on :4173
+npm run test:e2e     # end-to-end browser QA (build + preview must be running)
 ```
 
-## What's built (v0.1)
+## Working agreement (for any Claude session)
 
-Nine screens, all working:
-
-| Screen | What it does |
-|--------|--------------|
-| Onboarding | Connect email/bank, sets up the account |
-| Home | Live monthly total, spend chart, top alert, subscription list |
-| Detail | Price history, next charge, usage, cancel/keep |
-| Concierge | Animated "cancel-for-me" flow, commits the cancellation |
-| Success | Celebrates the saving |
-| Alerts | Trials ending, price hikes, unused subs — grouped by urgency |
-| Insights | Category donut, savings to date |
-| Paywall | The $5.99/mo (or $39.99/yr) Pro upsell — real purchase + restore |
-| Settings | Connected accounts, notification toggles, plan, security, privacy |
-| Delete account | Store-required account & data deletion flow |
-| Add subscription | Validated form to add your own subscriptions |
-
-Everything on screen is **derived from data** by the pure functions in
-`src/domain/` — totals, alerts, savings and dates are all unit-tested.
+- Work on branch `claude/mobile-app-concepts-8mvap4`; commit + push each finished,
+  green piece.
+- **Keep the logic pure and tested.** Business rules live in `src/domain/` and
+  `src/services/` behind interfaces — add a unit test with any new rule.
+- **Verify before claiming done:** `npm test` and `npm run test:e2e` must pass.
+- **Update this README's STATUS / DONE / NEXT sections** before ending a session.
 
 ## Docs
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — how the code is layered.
-- [`docs/HOW_CANCELLATION_WORKS.md`](docs/HOW_CANCELLATION_WORKS.md) — what really
-  happens when you cancel a subscription, and why Apple/Google-billed ones can't
-  be auto-cancelled.
-- [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md) — everything Apple and
-  Google require before we can publish.
-- [`docs/NATIVE_SETUP.md`](docs/NATIVE_SETUP.md) — the Mac runbook to build and
-  run the iOS/Android apps.
-
-## Quality
-
-- **73 unit tests** across money, dates, alert detection, savings, new-sub
-  validation, the state reducer, persistence, and the cancellation + billing
-  services (`npm test`).
-- **End-to-end QA** that drives the whole user journey in a browser and asserts
-  every state change — both cancellation paths, the Pro purchase/restore flow,
-  reload persistence, and account deletion (`node tests/e2e.mjs`).
-
-## Roadmap
-
-- Add-subscription flow and manual entry
-- Real email/bank sync (Plaid + inbox parsing) behind the read-only promise
-- Persisted state (local storage -> backend)
-- Capacitor wrap + App Store / Play Store builds
-- Push notifications for trial/price alerts
+- [`docs/HOW_CANCELLATION_WORKS.md`](docs/HOW_CANCELLATION_WORKS.md) — how "cancel
+  for me" really works.
+- [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md) — Apple + Google
+  publishing requirements, with status.
+- [`docs/NATIVE_SETUP.md`](docs/NATIVE_SETUP.md) — the Mac runbook to build the
+  iOS/Android apps.
