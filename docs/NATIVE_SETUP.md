@@ -97,19 +97,21 @@ real:
 
 ## 7. App icon & splash screen (required for the stores)
 
-Provide one 1024×1024 icon and (optionally) a splash logo, then generate every
-size automatically:
+**Already provided** — a shield app icon and splash live in `resources/`
+(`icon.png` 1024², `splash.png` / `splash-dark.png` 2732²). Just generate all the
+platform sizes:
 
 ```bash
 npm install -D @capacitor/assets
-# put icon at: resources/icon.png (1024x1024)
-# optional splash at: resources/splash.png (2732x2732)
 npx capacitor-assets generate
 npx cap sync
 ```
 
-I can produce a first-draft icon (the shield mark) so you have something to ship;
-you can swap it later.
+To restyle the icon later, edit `scripts/icon.html` / `scripts/splash.html` and
+re-run `node scripts/render-assets.mjs`.
+
+The native **status bar** is already wired (`src/native/init.ts`, runs only on
+device) — light icons on the dark background, no extra setup needed.
 
 ## 8. Submit
 

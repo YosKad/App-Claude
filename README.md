@@ -15,7 +15,8 @@ Capacitor, and runs on the web for development.
 ## 📊 STATUS — updated 2026-07-18
 
 **Where we are:** The full app is built and working as a web app, with all flows
-tested (73 unit tests + end-to-end browser QA, all green). It is **not yet a
+tested (73 unit tests + end-to-end browser QA, all green). App icon + splash,
+native status-bar styling, and keyboard-focus a11y are done. It is **not yet a
 native app** — the iOS/Android projects get generated on the owner's Mac (see
 "Needs the owner" below). Nothing is half-finished or broken.
 
@@ -42,6 +43,8 @@ when a piece is done and green).
 - **Design/compliance:** safe areas (notch/Dynamic Island/home indicator),
   responsive layout, 44–48px touch targets, dark UI.
 - **Capacitor configured** (config + scripts); ready for `cap add` on a Mac.
+- **App icon + splash** drawn (`resources/`), status-bar styling wired
+  (`src/native/init.ts`), keyboard-focus a11y across all controls.
 
 ## 🔜 NEXT (in priority order)
 
@@ -50,10 +53,8 @@ when a piece is done and green).
 2. **[Mac] Real in-app purchases** — swap the mock `BillingService` for
    RevenueCat/StoreKit + Play Billing; create products `pro_monthly` /
    `pro_yearly`.
-3. App **icon + splash** (draft the shield mark, then `@capacitor/assets`).
-4. Native **status bar** styling (`@capacitor/status-bar`).
-5. **Bank/email sync** via Plaid (read-only) — replaces the demo data.
-6. Privacy forms, screenshots, demo account → **submit** (see checklist).
+3. **Bank/email sync** via Plaid (read-only) — replaces the demo data.
+4. Privacy forms, screenshots, demo account → **submit** (see checklist).
 
 ## ⏳ NEEDS THE OWNER (blocking native launch)
 

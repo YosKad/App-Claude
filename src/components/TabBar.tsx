@@ -14,7 +14,7 @@ export function TabBar({ active }: { active: ScreenName }) {
   const alertCount = detectAlerts(state.subs, state.today).length;
 
   return (
-    <nav className="tabbar">
+    <nav className="tabbar" aria-label="Primary">
       {TABS.map((t) => (
         <button
           key={t.screen}

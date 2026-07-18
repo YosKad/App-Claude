@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; }
+  body { width: 1024px; height: 1024px; overflow: hidden; }
+  .icon {
+    width: 1024px; height: 1024px; position: relative;
+    background: radial-gradient(120% 90% at 50% 0%, #14313a 0%, #0c1116 62%);
+  }
+  svg { position: absolute; inset: 0; }
+</style>
+<div class="icon">
+  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5eead4" />
+        <stop offset="0.5" stop-color="#2dd4bf" />
+        <stop offset="1" stop-color="#0d9488" />
+      </linearGradient>
+      <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="24" stdDeviation="34" flood-color="#0d9488" flood-opacity="0.45" />
+      </filter>
+    </defs>
+    <!-- shield -->
+    <path filter="url(#soft)"
+      d="M512 168 L772 288 L772 552 C772 690 662 792 512 856 C362 792 252 690 252 552 L252 288 Z"
+      fill="url(#shield)" />
+    <!-- inner sheen -->
+    <path d="M512 168 L772 288 L772 552 C772 640 620 700 512 736 L512 168 Z"
+      fill="#ffffff" opacity="0.10" />
+    <!-- checkmark -->
+    <path d="M396 512 L474 592 L642 410"
+      fill="none" stroke="#04241e" stroke-width="62"
+      stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+</div>

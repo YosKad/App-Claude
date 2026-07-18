@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 2732px; height: 2732px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .splash {
+    width: 2732px; height: 2732px;
+    background: radial-gradient(90% 70% at 50% 42%, #14313a 0%, #0c1116 62%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 90px;
+  }
+  svg { width: 620px; height: 620px; }
+  .word { color: #e8eef2; font-size: 150px; font-weight: 850; letter-spacing: -0.03em; }
+  .word b { color: #2dd4bf; }
+  .tag { color: #7c8895; font-size: 62px; font-weight: 600; margin-top: -40px; }
+</style>
+<div class="splash">
+  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5eead4" />
+        <stop offset="0.5" stop-color="#2dd4bf" />
+        <stop offset="1" stop-color="#0d9488" />
+      </linearGradient>
+    </defs>
+    <path d="M512 168 L772 288 L772 552 C772 690 662 792 512 856 C362 792 252 690 252 552 L252 288 Z" fill="url(#shield)" />
+    <path d="M396 512 L474 592 L642 410" fill="none" stroke="#04241e" stroke-width="62" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  <div class="word">Sub<b>Sentry</b></div>
+  <div class="tag">Guard your subscriptions</div>
+</div>
