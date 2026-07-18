@@ -110,9 +110,19 @@ try {
   await page.getByTestId("open-paywall").click();
   await page.waitForSelector('[data-testid="start-trial"]');
   await shot("10-paywall");
+
+  // Restore with no prior purchase should say so, not silently upgrade.
+  await page.getByTestId("restore").click();
+  await page.waitForSelector('[data-testid="pw-message"]');
+  check(
+    "restore with no purchase shows an honest message",
+    /No previous purchase/i.test(await page.getByTestId("pw-message").innerText()),
+  );
+
+  // Real purchase flow via the billing service.
   await page.getByTestId("start-trial").click();
   await page.waitForSelector('[data-testid="toggle-unusedNudges"]');
-  check("plan shows PRO after upgrade", await page.locator(".se-prof .pro").innerText() === "PRO");
+  check("purchase upgrades the plan to PRO", await page.locator(".se-prof .pro").innerText() === "PRO");
 
   // --- Store-billed cancellation takes the honest deep-link path ---
   console.log("Store-billed cancel path (Apple)");
@@ -131,6 +141,23 @@ try {
     !(await page.getByTestId("success").isVisible().catch(() => false)),
   );
   await shot("11-needs-user");
+  // Return to Home: needs_user Back -> detail, detail Back -> home.
+  await page.getByRole("button", { name: "Back" }).click();
+  await page.locator(".appbar .bk").click();
+
+  // --- Account & data deletion (store requirement); wipes state, so it's last ---
+  console.log("Account deletion");
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.waitForSelector('[data-testid="open-delete"]');
+  await page.getByTestId("open-delete").click();
+  await page.waitForSelector('[data-testid="confirm-delete"]');
+  await shot("12-delete");
+  await page.getByTestId("confirm-delete").click();
+  await page.waitForSelector(".on-hero", { timeout: 5000 });
+  check(
+    "deleting the account returns to a fresh onboarding",
+    await page.getByText("forgot about").isVisible(),
+  );
 
   console.log(`\n${failures === 0 ? "ALL E2E CHECKS PASSED" : failures + " E2E CHECK(S) FAILED"}`);
 } catch (err) {

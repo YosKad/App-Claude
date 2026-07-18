@@ -102,6 +102,38 @@ export function Settings() {
         </div>
       </div>
 
+      <div className="se-g">Data &amp; privacy</div>
+      <div className="se-card">
+        <div className="se-r">
+          <span className="ic">📄</span>
+          <div>
+            <div className="rt">Privacy policy</div>
+          </div>
+          <span className="rr">›</span>
+        </div>
+        <div className="se-r">
+          <span className="ic">📤</span>
+          <div>
+            <div className="rt">Export my data</div>
+            <div className="rs">Download everything we hold</div>
+          </div>
+          <span className="rr">›</span>
+        </div>
+        <button
+          className="se-r tap"
+          data-testid="open-delete"
+          onClick={() => dispatch({ type: "navigate", screen: "deleteAccount" })}
+        >
+          <span className="ic">🗑️</span>
+          <div>
+            <div className="rt" style={{ color: "#fca5a5" }}>
+              Delete account &amp; data
+            </div>
+          </div>
+          <span className="rr">›</span>
+        </button>
+      </div>
+
       <TabBar active="settings" />
     </div>
   );

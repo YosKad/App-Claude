@@ -8,6 +8,7 @@ import { Alerts } from "./screens/Alerts";
 import { Insights } from "./screens/Insights";
 import { Paywall } from "./screens/Paywall";
 import { Settings } from "./screens/Settings";
+import { DeleteAccount } from "./screens/DeleteAccount";
 
 export function App() {
   const state = useAppState();
@@ -24,6 +25,7 @@ export function App() {
       {screen === "insights" && <Insights />}
       {screen === "paywall" && <Paywall />}
       {screen === "settings" && <Settings />}
+      {screen === "deleteAccount" && <DeleteAccount />}
     </div>
   );
 }

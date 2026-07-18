@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAppState, useDispatch } from "../state/store";
+import { billingService, PRODUCTS, type PlanId } from "../services/billing";
 
 const FEATURES = [
   ["Unlimited subscription tracking", "Free stops at 5 — Pro watches them all"],
@@ -11,11 +12,40 @@ const FEATURES = [
 export function Paywall() {
   const state = useAppState();
   const dispatch = useDispatch();
-  const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");
+  const [plan, setPlan] = useState<PlanId>("pro_yearly");
+  const [busy, setBusy] = useState<"buy" | "restore" | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const start = () => {
-    dispatch({ type: "upgradePro" });
-    dispatch({ type: "back" });
+  const selected = PRODUCTS.find((p) => p.id === plan)!;
+
+  const buy = async () => {
+    if (busy) return;
+    setMessage(null);
+    setBusy("buy");
+    const r = await billingService.purchase(plan);
+    setBusy(null);
+    if (r.ok) {
+      dispatch({ type: "upgradePro" });
+      dispatch({ type: "back" });
+    } else if (r.phase === "cancelled") {
+      setMessage(null); // user backed out — say nothing
+    } else {
+      setMessage(r.reason ?? "Something went wrong. You were not charged.");
+    }
+  };
+
+  const restore = async () => {
+    if (busy) return;
+    setMessage(null);
+    setBusy("restore");
+    const r = await billingService.restore();
+    setBusy(null);
+    if (r.ok) {
+      dispatch({ type: "upgradePro" });
+      dispatch({ type: "back" });
+    } else {
+      setMessage(r.reason ?? "No previous purchase found.");
+    }
   };
 
   return (
@@ -48,33 +78,51 @@ export function Paywall() {
       </div>
 
       <div className="pw-plans">
-        <button
-          className={"pw-pl" + (plan === "monthly" ? " on" : "")}
-          onClick={() => setPlan("monthly")}
-        >
-          <div className="per">Monthly</div>
-          <div className="amt">$5.99</div>
-          <div className="note">per month</div>
-        </button>
-        <button
-          className={"pw-pl" + (plan === "yearly" ? " on" : "")}
-          onClick={() => setPlan("yearly")}
-        >
-          <span className="tag">SAVE 44% · BEST</span>
-          <div className="per">Yearly</div>
-          <div className="amt">$39.99</div>
-          <div className="note">$3.33 / month</div>
-        </button>
+        {PRODUCTS.map((p) => (
+          <button
+            key={p.id}
+            className={"pw-pl" + (plan === p.id ? " on" : "")}
+            data-testid={`plan-${p.id}`}
+            aria-pressed={plan === p.id}
+            onClick={() => setPlan(p.id)}
+          >
+            {p.badge && <span className="tag">{p.badge}</span>}
+            <div className="per">{p.title}</div>
+            <div className="amt">{p.price}</div>
+            <div className="note">{p.perMonth ?? p.period}</div>
+          </button>
+        ))}
       </div>
 
-      <div className="sfx">
-        <button className="btn pri" data-testid="start-trial" onClick={start}>
-          {state.isPro ? "You're on Pro ✓" : "Start 7-day free trial"}
-        </button>
-        <div className="pw-restore">
-          Then {plan === "yearly" ? "$39.99/yr" : "$5.99/mo"} · cancel anytime ·
-          Restore purchase
+      {message && (
+        <div className="pw-msg" data-testid="pw-message" role="alert">
+          {message}
         </div>
+      )}
+
+      <div className="sfx">
+        <button
+          className="btn pri"
+          data-testid="start-trial"
+          disabled={busy !== null}
+          onClick={buy}
+        >
+          {state.isPro
+            ? "You're on Pro ✓"
+            : busy === "buy"
+              ? "Processing…"
+              : `Start ${selected.trialDays}-day free trial`}
+        </button>
+        <button
+          className="pw-restore"
+          data-testid="restore"
+          disabled={busy !== null}
+          onClick={restore}
+        >
+          Then {selected.price}
+          {selected.perMonth ? `/yr` : "/mo"} · cancel anytime ·{" "}
+          <u>{busy === "restore" ? "Restoring…" : "Restore purchase"}</u>
+        </button>
       </div>
     </div>
   );

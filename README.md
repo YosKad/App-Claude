@@ -32,8 +32,9 @@ Nine screens, all working:
 | Success | Celebrates the saving |
 | Alerts | Trials ending, price hikes, unused subs — grouped by urgency |
 | Insights | Category donut, savings to date |
-| Paywall | The $5.99/mo (or $39.99/yr) Pro upsell |
-| Settings | Connected accounts, notification toggles, plan, security |
+| Paywall | The $5.99/mo (or $39.99/yr) Pro upsell — real purchase + restore |
+| Settings | Connected accounts, notification toggles, plan, security, privacy |
+| Delete account | Store-required account & data deletion flow |
 
 Everything on screen is **derived from data** by the pure functions in
 `src/domain/` — totals, alerts, savings and dates are all unit-tested.
@@ -49,10 +50,11 @@ Everything on screen is **derived from data** by the pure functions in
 
 ## Quality
 
-- **50 unit tests** across money, dates, alert detection, savings, the state
-  reducer, and the cancellation service (`npm test`).
+- **58 unit tests** across money, dates, alert detection, savings, the state
+  reducer, and the cancellation + billing services (`npm test`).
 - **End-to-end QA** that drives the whole user journey in a browser and asserts
-  every state change — including both cancellation paths (`node tests/e2e.mjs`).
+  every state change — both cancellation paths, the Pro purchase/restore flow,
+  and account deletion (`node tests/e2e.mjs`).
 
 ## Roadmap
 

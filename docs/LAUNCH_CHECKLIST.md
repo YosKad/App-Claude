@@ -18,14 +18,18 @@ sensitive-data and in-app-purchase sections carry the highest rejection risk.
   binaries; configure signing (Xcode automatic signing / Android keystore).
 
 ## 1. In-app purchase — the Pro subscription (highest risk)
-- ☐ Sell the $5.99/mo · $39.99/yr Pro plan through **Apple StoreKit** and
+- ◐ Sell the $5.99/mo · $39.99/yr Pro plan through **Apple StoreKit** and
   **Google Play Billing** — you may **not** use Stripe/PayPal/etc. for a digital
-  subscription inside the app (Apple 3.1.1, Google Payments policy).
-- ☐ Add a **Restore Purchases** control (Apple 3.1.1 — mandatory).
-- ☐ Subscription must deliver **ongoing value** and run **≥ 7 days** across the
-  user's devices (Apple 3.1.2).
-- ☐ Show price, billing period, and a link to terms **before** purchase;
-  auto-renew disclosure text.
+  subscription inside the app (Apple 3.1.1, Google Payments policy). _Built behind
+  the `BillingService` seam (`src/services/billing.ts`) with a tested mock;
+  swap in the native plugin (StoreKit/Play Billing bridge) to go live._
+- ☑ Add a **Restore Purchases** control (Apple 3.1.1 — mandatory). _Implemented
+  in the paywall, calls `billingService.restore()`._
+- ☑ Subscription delivers **ongoing value** and runs **≥ 7 days** — 7-day trial +
+  monthly/yearly plans across devices (Apple 3.1.2).
+- ◐ Show price, billing period, and a link to terms **before** purchase;
+  auto-renew disclosure text. _Price/period shown; terms link + auto-renew copy
+  to add._
 - ☐ Configure products in App Store Connect and Play Console; test with sandbox
   accounts.
 - Note: this is separate from *cancelling other people's* subscriptions — that's
@@ -41,9 +45,11 @@ sensitive-data and in-app-purchase sections carry the highest rejection risk.
   handled by any SDK** (e.g. Plaid).
 - ☐ Google Play **Financial features declaration** (every app must complete it,
   even to say "none"; we will declare our financial features).
-- ☐ **Account & data deletion**: an in-app path to delete the account/data, and
+- ◐ **Account & data deletion**: an in-app path to delete the account/data, and
   disclosure of how to revoke consent (Apple 5.1.1(v); Google account-deletion
-  policy — must also offer web-based deletion).
+  policy — must also offer web-based deletion). _In-app delete flow built
+  (Settings › Data & privacy › Delete account); backend erase + web-based
+  deletion form still to add._
 - ☐ Request only the permissions we use; justify any sensitive ones.
 
 ## 3. Bank / email linking (sensitive financial data)

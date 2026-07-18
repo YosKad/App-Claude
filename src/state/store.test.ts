@@ -62,3 +62,16 @@ describe("reducer settings & pro", () => {
     expect(s.isPro).toBe(true);
   });
 });
+
+describe("reducer account deletion", () => {
+  it("deleteAccount wipes state back to a fresh onboarding", () => {
+    let s = reducer(initialState, { type: "onboard" });
+    s = reducer(s, { type: "upgradePro" });
+    s = reducer(s, { type: "cancelSub", id: "netflix" });
+    const wiped = reducer(s, { type: "deleteAccount" });
+    expect(wiped.onboarded).toBe(false);
+    expect(wiped.isPro).toBe(false);
+    expect(currentScreen(wiped).screen).toBe("onboarding");
+    expect(wiped.subs.find((x) => x.id === "netflix")?.status).not.toBe("cancelled");
+  });
+});

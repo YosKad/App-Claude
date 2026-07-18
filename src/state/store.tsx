@@ -18,7 +18,8 @@ export type ScreenName =
   | "alerts"
   | "insights"
   | "paywall"
-  | "settings";
+  | "settings"
+  | "deleteAccount";
 
 /** Root tabs reachable from the bottom bar. */
 export const ROOT_TABS: ScreenName[] = ["home", "alerts", "insights", "settings"];
@@ -63,7 +64,8 @@ export type Action =
     }
   | { type: "restoreSub"; id: string }
   | { type: "toggleSetting"; key: SettingKey }
-  | { type: "upgradePro" };
+  | { type: "upgradePro" }
+  | { type: "deleteAccount" };
 
 export const initialState: AppState = {
   today: TODAY,
@@ -135,6 +137,11 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case "upgradePro":
       return { ...state, isPro: true };
+
+    case "deleteAccount":
+      // Wipe everything and return to a fresh, logged-out state. In production
+      // this also calls the backend to erase server-side data (store rule).
+      return { ...initialState };
 
     default:
       return state;
