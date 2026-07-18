@@ -80,6 +80,19 @@ try {
   );
   await shot("06-home-after");
 
+  // --- Persistence: state survives a reload ---
+  console.log("Persistence");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForSelector('[data-testid="sub-netflix"]');
+  check(
+    "app reopens past onboarding after reload",
+    await page.getByTestId("sub-netflix").isVisible(),
+  );
+  check(
+    "cancellation persisted across reload",
+    (await page.getByTestId("sub-netflix").getAttribute("class")).includes("cancelled"),
+  );
+
   // --- Alerts tab ---
   console.log("Alerts");
   await page.getByRole("button", { name: "Alerts" }).click();

@@ -6,3 +6,7 @@ tests/shots
 .vite
 
 *.tsbuildinfo
+
+# Capacitor native projects (generated on the Mac with `cap add`)
+/ios
+/android

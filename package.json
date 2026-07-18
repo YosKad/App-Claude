@@ -10,13 +10,23 @@
     "preview": "vite preview --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit"
+    "test:e2e": "node tests/e2e.mjs",
+    "typecheck": "tsc -b --noEmit",
+    "native:sync": "npm run build && cap sync",
+    "native:add:ios": "cap add ios",
+    "native:add:android": "cap add android",
+    "native:ios": "cap open ios",
+    "native:android": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.2.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

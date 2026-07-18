@@ -47,14 +47,16 @@ Everything on screen is **derived from data** by the pure functions in
   be auto-cancelled.
 - [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md) — everything Apple and
   Google require before we can publish.
+- [`docs/NATIVE_SETUP.md`](docs/NATIVE_SETUP.md) — the Mac runbook to build and
+  run the iOS/Android apps.
 
 ## Quality
 
-- **58 unit tests** across money, dates, alert detection, savings, the state
-  reducer, and the cancellation + billing services (`npm test`).
+- **64 unit tests** across money, dates, alert detection, savings, the state
+  reducer, persistence, and the cancellation + billing services (`npm test`).
 - **End-to-end QA** that drives the whole user journey in a browser and asserts
   every state change — both cancellation paths, the Pro purchase/restore flow,
-  and account deletion (`node tests/e2e.mjs`).
+  reload persistence, and account deletion (`node tests/e2e.mjs`).
 
 ## Roadmap
 

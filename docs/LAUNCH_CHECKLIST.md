@@ -14,8 +14,10 @@ sensitive-data and in-app-purchase sections carry the highest rejection risk.
   ~12 testers for 14 days** before production access.
 - ☐ Apple: build with the **iOS 26 SDK or later** (required for uploads after
   28 Apr 2026).
-- ☐ Wrap the web build with **Capacitor** to produce the native iOS/Android
+- ◐ Wrap the web build with **Capacitor** to produce the native iOS/Android
   binaries; configure signing (Xcode automatic signing / Android keystore).
+  _Capacitor installed + configured (`capacitor.config.ts`, npm scripts); run
+  `cap add ios/android` on the Mac — see docs/NATIVE_SETUP.md._
 
 ## 1. In-app purchase — the Pro subscription (highest risk)
 - ◐ Sell the $5.99/mo · $39.99/yr Pro plan through **Apple StoreKit** and

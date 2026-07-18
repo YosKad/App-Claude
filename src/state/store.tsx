@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useReducer,
   type Dispatch,
   type ReactNode,
@@ -8,6 +9,7 @@ import {
 import type { Subscription } from "../domain/types";
 import type { CancellationMethod } from "../services/cancellation";
 import { SEED_SUBSCRIPTIONS, TODAY } from "../data/seed";
+import { loadPersisted, savePersisted } from "./persistence";
 
 export type ScreenName =
   | "onboarding"
@@ -156,11 +158,35 @@ export function currentScreen(state: AppState): {
   return state.stack[state.stack.length - 1];
 }
 
+/**
+ * Build the starting state, rehydrating from local storage when present.
+ * Navigation is derived from onboarding status rather than persisted, so the
+ * app never restores onto a stale pushed screen.
+ */
+export function makeInitialState(): AppState {
+  const p = loadPersisted();
+  if (!p) return initialState;
+  return {
+    ...initialState,
+    subs: p.subs ?? initialState.subs,
+    settings: { ...initialState.settings, ...p.settings },
+    isPro: p.isPro ?? false,
+    onboarded: p.onboarded ?? false,
+    stack: p.onboarded ? [{ screen: "home" }] : [{ screen: "onboarding" }],
+  };
+}
+
 const StateCtx = createContext<AppState | null>(null);
 const DispatchCtx = createContext<Dispatch<Action> | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, undefined, makeInitialState);
+
+  // Persist the meaningful slice whenever it changes.
+  useEffect(() => {
+    savePersisted(state);
+  }, [state.subs, state.settings, state.isPro, state.onboarded]);
+
   return (
     <StateCtx.Provider value={state}>
       <DispatchCtx.Provider value={dispatch}>{children}</DispatchCtx.Provider>
