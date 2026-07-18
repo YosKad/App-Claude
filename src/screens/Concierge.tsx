@@ -1,42 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppState, useDispatch } from "../state/store";
 import { formatMoney, monthlyCost } from "../domain/money";
 import { yearlySavingOf } from "../domain/savings";
+import {
+  cancellationService,
+  type CancellationEvent,
+  type CancellationOutcome,
+  type CancellationPhase,
+} from "../services/cancellation";
 
-const STEPS = [
-  "Request received",
-  "Contacting provider",
-  "Confirming cancellation",
-  "Done — you're safe",
-];
-
-/** Ms between concierge steps. Short so the flow feels live but testable. */
-const STEP_MS = 550;
+const STEP_LABELS: Record<
+  Exclude<CancellationPhase, "confirmed" | "needs_user" | "failed">,
+  string
+> = {
+  queued: "Request received",
+  contacting: "Contacting provider",
+  confirming: "Confirming cancellation",
+};
+const ORDER: CancellationPhase[] = ["queued", "contacting", "confirming"];
 
 export function Concierge({ subId }: { subId: string }) {
   const state = useAppState();
   const dispatch = useDispatch();
   const sub = state.subs.find((s) => s.id === subId);
-  const [step, setStep] = useState(0);
+
+  const [events, setEvents] = useState<CancellationEvent[]>([]);
+  const [outcome, setOutcome] = useState<CancellationOutcome | null>(null);
+  const started = useRef(false);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    if (!sub) return;
-    if (step >= STEPS.length - 1) {
-      // Final step reached: commit the cancellation, then show the win.
-      const done = setTimeout(() => {
-        dispatch({ type: "cancelSub", id: sub.id });
-        dispatch({ type: "navigate", screen: "success", subId: sub.id });
-      }, STEP_MS);
-      return () => clearTimeout(done);
+    // `mounted` tracks the true lifecycle (survives StrictMode's dev remount,
+    // flips false only on a real unmount). `started` ensures the request fires
+    // exactly once.
+    mounted.current = true;
+    if (sub && !started.current) {
+      started.current = true;
+      cancellationService
+        .cancel(sub, (e) => {
+          if (mounted.current) setEvents((prev) => [...prev, e]);
+        })
+        .then((result) => {
+          if (!mounted.current) return;
+          setOutcome(result);
+          if (result.ok && result.phase === "confirmed") {
+            // Only now do we actually mark it cancelled in app state.
+            dispatch({
+              type: "cancelSub",
+              id: sub.id,
+              method: result.method,
+              confirmationId: result.confirmationId,
+            });
+            setTimeout(() => {
+              if (mounted.current)
+                dispatch({ type: "navigate", screen: "success", subId: sub.id });
+            }, 600);
+          }
+        });
     }
-    const t = setTimeout(() => setStep((s) => s + 1), STEP_MS);
-    return () => clearTimeout(t);
-  }, [step, sub, dispatch]);
+    return () => {
+      mounted.current = false;
+    };
+  }, [sub, dispatch]);
 
   if (!sub) return null;
 
-  const progress = Math.min(step + 1, STEPS.length) / STEPS.length;
-  const ringDeg = Math.round(progress * 360);
+  const currentPhase = events[events.length - 1]?.phase ?? "queued";
+  const progressed = ORDER.indexOf(
+    (["confirmed", "needs_user", "failed"] as CancellationPhase[]).includes(
+      currentPhase,
+    )
+      ? "confirming"
+      : currentPhase,
+  );
+  const isDone = outcome !== null;
+  const ringDeg = Math.round(((progressed + 1) / (ORDER.length + 1)) * 360);
+  const failed = outcome?.phase === "failed";
+  const needsUser = outcome?.phase === "needs_user";
+
+  const ringColor = failed
+    ? "var(--danger)"
+    : needsUser
+      ? "var(--warn)"
+      : "var(--ac)";
 
   return (
     <div className="screen" data-testid="concierge">
@@ -44,43 +90,86 @@ export function Concierge({ subId }: { subId: string }) {
         <div
           className="cc-ring"
           style={{
-            background: `conic-gradient(var(--ac) 0deg ${ringDeg}deg, rgba(255,255,255,.1) ${ringDeg}deg 360deg)`,
+            background: `conic-gradient(${ringColor} 0deg ${
+              isDone ? 360 : ringDeg
+            }deg, rgba(255,255,255,.1) ${isDone ? 360 : ringDeg}deg 360deg)`,
           }}
         >
-          <div className="in">✂️</div>
+          <div className="in">{failed ? "⚠️" : needsUser ? "👆" : "✂️"}</div>
         </div>
-        <div className="cc-h">Cancelling {sub.name.split(" ")[0]}…</div>
+        <div className="cc-h">
+          {failed
+            ? "Couldn't cancel automatically"
+            : needsUser
+              ? "Almost — one tap from you"
+              : `Cancelling ${sub.name.split(" ")[0]}…`}
+        </div>
         <div className="cc-p">
-          Sit back — we're taking care of it. You'll get a confirmation the
-          moment it's done.
+          {outcome?.reason ??
+            "Sit back — we're taking care of it. You'll get a confirmation the moment it's done."}
         </div>
       </div>
 
-      <div className="cc-steps">
-        {STEPS.map((label, i) => {
-          const done = i < step;
-          const now = i === step;
-          return (
-            <div key={label} className={"cc-s" + (i > step ? " pending" : "")}>
-              <span className={"dot " + (done ? "done" : now ? "now" : "todo")}>
-                {done ? "✓" : now ? "●" : i + 1}
-              </span>
-              <span className={"line" + (done ? " fill" : "")} />
-              <span className="tx">{label}</span>
-              {now && <span className="tm">now</span>}
-              {done && <span className="tm">done</span>}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="cc-save">
-        <div className="k">You'll stop paying</div>
-        <div className="v">
-          {formatMoney(monthlyCost(sub))}
-          <small> /mo · {formatMoney(yearlySavingOf(sub), { cents: false })} /yr</small>
+      {!isDone && (
+        <div className="cc-steps">
+          {ORDER.map((phase, i) => {
+            const done = i < progressed;
+            const now = i === progressed;
+            return (
+              <div key={phase} className={"cc-s" + (i > progressed ? " pending" : "")}>
+                <span className={"dot " + (done ? "done" : now ? "now" : "todo")}>
+                  {done ? "✓" : now ? "●" : i + 1}
+                </span>
+                <span className={"line" + (done ? " fill" : "")} />
+                <span className="tx">{STEP_LABELS[phase as keyof typeof STEP_LABELS]}</span>
+                {now && <span className="tm">now</span>}
+                {done && <span className="tm">done</span>}
+              </div>
+            );
+          })}
         </div>
-      </div>
+      )}
+
+      {!isDone && (
+        <div className="cc-save">
+          <div className="k">You'll stop paying</div>
+          <div className="v">
+            {formatMoney(monthlyCost(sub))}
+            <small>
+              {" "}
+              /mo · {formatMoney(yearlySavingOf(sub), { cents: false })} /yr
+            </small>
+          </div>
+        </div>
+      )}
+
+      {(needsUser || failed) && (
+        <div className="sfx">
+          {needsUser && (
+            <button
+              className="btn pri"
+              data-testid="finish-in-settings"
+              onClick={() => {
+                if (outcome?.deepLink) window.open(outcome.deepLink, "_blank");
+                dispatch({ type: "back" });
+              }}
+            >
+              Open subscription settings
+            </button>
+          )}
+          {failed && (
+            <button
+              className="btn pri"
+              onClick={() => dispatch({ type: "back" })}
+            >
+              Try again later
+            </button>
+          )}
+          <button className="btn dark" onClick={() => dispatch({ type: "back" })}>
+            Back
+          </button>
+        </div>
+      )}
     </div>
   );
 }

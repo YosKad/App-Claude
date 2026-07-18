@@ -64,6 +64,7 @@ try {
   const savedText = await page.locator(".su-big .v").innerText();
   check("success shows a yearly saving > 0", money(savedText) > 0);
   check("counter shows 1 sub cancelled", (await page.locator(".su-tot .tv").nth(1).innerText()) === "1");
+  check("success shows a real confirmation receipt", await page.getByTestId("receipt").isVisible());
   await shot("05-success");
   await page.getByTestId("success-home").click();
 
@@ -112,6 +113,24 @@ try {
   await page.getByTestId("start-trial").click();
   await page.waitForSelector('[data-testid="toggle-unusedNudges"]');
   check("plan shows PRO after upgrade", await page.locator(".se-prof .pro").innerText() === "PRO");
+
+  // --- Store-billed cancellation takes the honest deep-link path ---
+  console.log("Store-billed cancel path (Apple)");
+  await page.getByRole("button", { name: "Home" }).click();
+  await page.waitForSelector('[data-testid="sub-applemusic"]');
+  await page.getByTestId("sub-applemusic").click();
+  await page.waitForSelector('[data-testid="cancel-cta"]');
+  await page.getByTestId("cancel-cta").click();
+  await page.waitForSelector('[data-testid="finish-in-settings"]', { timeout: 8000 });
+  check(
+    "Apple-billed sub routes user to Settings (not fake auto-cancel)",
+    await page.getByTestId("finish-in-settings").isVisible(),
+  );
+  check(
+    "store-billed cancel does NOT show a false success",
+    !(await page.getByTestId("success").isVisible().catch(() => false)),
+  );
+  await shot("11-needs-user");
 
   console.log(`\n${failures === 0 ? "ALL E2E CHECKS PASSED" : failures + " E2E CHECK(S) FAILED"}`);
 } catch (err) {

@@ -6,6 +6,14 @@ export type BillingCycle = "monthly" | "yearly";
 
 export type SubStatus = "active" | "trial" | "cancelled";
 
+/**
+ * How the subscription is actually billed. This decides how it can be
+ * cancelled — critically, Apple/Google-billed subscriptions can NOT be
+ * cancelled programmatically and must be handled by the user in system
+ * settings (see docs/HOW_CANCELLATION_WORKS.md).
+ */
+export type BillingProvider = "card" | "paypal" | "apple" | "google";
+
 export type Category =
   | "Streaming"
   | "Music"
@@ -34,6 +42,8 @@ export interface Subscription {
   /** Price for one billing cycle (not normalised). */
   price: number;
   cycle: BillingCycle;
+  /** Payment rail. Defaults to "card" when omitted. */
+  billing?: BillingProvider;
   /** ISO date of the next charge. */
   nextCharge: string;
   /** ISO date the subscription (or its trial) started. */

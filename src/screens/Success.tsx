@@ -9,6 +9,13 @@ export function Success({ subId }: { subId: string }) {
   const cancelled = state.subs.filter((s) => s.status === "cancelled");
   const saved = savingsSummary(cancelled);
   const thisYearSaving = sub ? yearlySavingOf(sub) : 0;
+  const receipt = state.lastCancellation;
+  const methodLabel: Record<string, string> = {
+    concierge: "Cancelled by our team",
+    provider_api: "Cancelled via provider",
+    rpa: "Cancelled automatically",
+    store_deeplink: "Confirmed in settings",
+  };
 
   return (
     <div className="screen" data-testid="success">
@@ -18,6 +25,11 @@ export function Success({ subId }: { subId: string }) {
         <div className="su-p">
           Done and confirmed. You won't be charged again — we've got the receipt.
         </div>
+        {receipt?.confirmationId && (
+          <div className="su-receipt" data-testid="receipt">
+            ✓ {methodLabel[receipt.method]} · ref {receipt.confirmationId}
+          </div>
+        )}
         <div className="su-big">
           <div className="k">You just saved</div>
           <div className="v">

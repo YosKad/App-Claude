@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Subscription } from "../domain/types";
+import type { CancellationMethod } from "../services/cancellation";
 import { SEED_SUBSCRIPTIONS, TODAY } from "../data/seed";
 
 export type ScreenName =
@@ -41,6 +42,12 @@ export interface AppState {
   stack: { screen: ScreenName; subId?: string }[];
   /** Id of the most recently cancelled sub, for the success screen. */
   lastCancelled: string | null;
+  /** Details of the most recent successful cancellation, for the receipt. */
+  lastCancellation: {
+    subId: string;
+    method: CancellationMethod;
+    confirmationId?: string;
+  } | null;
 }
 
 export type Action =
@@ -48,7 +55,12 @@ export type Action =
   | { type: "navigate"; screen: ScreenName; subId?: string }
   | { type: "back" }
   | { type: "selectTab"; screen: ScreenName }
-  | { type: "cancelSub"; id: string }
+  | {
+      type: "cancelSub";
+      id: string;
+      method?: CancellationMethod;
+      confirmationId?: string;
+    }
   | { type: "restoreSub"; id: string }
   | { type: "toggleSetting"; key: SettingKey }
   | { type: "upgradePro" };
@@ -66,6 +78,7 @@ export const initialState: AppState = {
   onboarded: false,
   stack: [{ screen: "onboarding" }],
   lastCancelled: null,
+  lastCancellation: null,
 };
 
 function setStatus(
@@ -101,6 +114,11 @@ export function reducer(state: AppState, action: Action): AppState {
         ...state,
         subs: setStatus(state.subs, action.id, "cancelled"),
         lastCancelled: action.id,
+        lastCancellation: {
+          subId: action.id,
+          method: action.method ?? "concierge",
+          confirmationId: action.confirmationId,
+        },
       };
 
     case "restoreSub":

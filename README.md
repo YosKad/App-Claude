@@ -38,16 +38,21 @@ Nine screens, all working:
 Everything on screen is **derived from data** by the pure functions in
 `src/domain/` — totals, alerts, savings and dates are all unit-tested.
 
-## Architecture
+## Docs
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — how the code is layered.
+- [`docs/HOW_CANCELLATION_WORKS.md`](docs/HOW_CANCELLATION_WORKS.md) — what really
+  happens when you cancel a subscription, and why Apple/Google-billed ones can't
+  be auto-cancelled.
+- [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md) — everything Apple and
+  Google require before we can publish.
 
 ## Quality
 
-- **41 unit tests** across money, dates, alert detection, savings and the state
-  reducer (`npm test`).
+- **50 unit tests** across money, dates, alert detection, savings, the state
+  reducer, and the cancellation service (`npm test`).
 - **End-to-end QA** that drives the whole user journey in a browser and asserts
-  every state change (`node tests/e2e.mjs`).
+  every state change — including both cancellation paths (`node tests/e2e.mjs`).
 
 ## Roadmap
 
